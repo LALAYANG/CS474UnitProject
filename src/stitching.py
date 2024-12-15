@@ -1,12 +1,29 @@
+import ast
 import os
 import textwrap
 from inference import model_prompting
 
 
 def stitch_z3_code(code, error_msg):
-    if "NameError" in error_msg:
-        code = "from z3 import Solver, Real, And, Or, Not, sat, unsat\n" + code
+    tree = ast.parse(code)
     
+    import_statement = ast.ImportFrom(
+        module='z3',
+        names=[
+            ast.alias(name='Solver', asname=None),
+            ast.alias(name='Real', asname=None),
+            ast.alias(name='And', asname=None),
+            ast.alias(name='Or', asname=None),
+            ast.alias(name='Not', asname=None),
+            ast.alias(name='sat', asname=None),
+            ast.alias(name='unsat', asname=None)
+        ],
+        level=0 
+    )
+    
+    if "NameError" in error_msg:
+        tree.body.insert(0, import_statement)
+        code = ast.unparse(tree)
     return code
 
 def parse_python_code(response):
