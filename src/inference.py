@@ -13,7 +13,7 @@ def prompt_gpt(model, prompt, max_len = 4096, temp = 0, max_attempts = 6):
     while attempts < max_attempts and not response:
         try:
             client = OpenAI(
-                api_key=os.environ.get("OPENAI_API_KEY"),  # This is the default and can be omitted
+                api_key=os.environ.get("OPENAI_API_KEY"), 
             )
 
             chat_completion = client.chat.completions.create(
@@ -41,7 +41,7 @@ def prompt_construction(input_item):
     You should do the following tasks step by step:
     (1) Extract instantiations from the informal_proof, and surround it with ```instantiations and ```
     (2) Using the above instantiations, you should generate a formal proof, and surround it with ```formal_proof and ```
-    (3) Write the formal proof using Python Z3, generate the python code in ```python and ```
+    (3) Write the formal proof using Python Z3, print "sat" if it is valid, otherwise print "unsat", generate the python code in ```python and ```
     
     For example, given the following informal_statement and informal_proof,
     informal_statement:
