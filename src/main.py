@@ -1,5 +1,7 @@
 import os
 import json
+import signal
+from datetime import datetime
 from inference import prompt_construction, model_prompting
 from post_processing import process_response
 from utils import read_jsonl, evaluate_z3_code
@@ -68,16 +70,22 @@ def offline_fix_z3(eval_result, tag, code):
     new_eval_result = evaluate_z3_code(tag, new_code)
     return new_eval_result, new_code
 
+def timeout_handler(signum, frame):
+    raise TimeoutError
+
+signal.signal(signal.SIGALRM, timeout_handler)
+
 def main(input_file, output_file):
     jsonl_data = read_jsonl(input_file)
     results = []
     model = "gpt-4o-mini"
     for item in jsonl_data:
+        signal.alarm(300) 
         try:
             if is_item_in_jsonl(output_file, item):
                 print(f"{item['problem_name']} is already done!")
                 continue
-            print(f"*** Working on item {item['problem_name']}...")
+            print(f"*** Working on item {item['problem_name']} starting at {datetime.now().strftime('%H:%M:%S')}...")
             prompt = get_prompt(item)
             print(f"*** Prompt:\n{prompt}")
             response = prompt_model(model, prompt)
@@ -96,9 +104,13 @@ def main(input_file, output_file):
             with open(output_file, 'a') as file:
                 json.dump(item, file)
                 file.write('\n')
-            print(f"*** Done with {item['problem_name']}")
+            print(f"*** Done with {item['problem_name']} ending at {datetime.now().strftime('%H:%M:%S')}")
+        except TimeoutError:
+            print(f"*** Exceptions with {item['problem_name']} with TimeoutError")
+            item["final_eval_result"] = "TimeoutError"
         except Exception as e:
             print(f"*** Exceptions with {item['problem_name']} with {e}")
+        signal.alarm(0)
         # exit(0)
 
 def is_item_in_jsonl(file_path, item):
