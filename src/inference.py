@@ -23,7 +23,7 @@ def prompt_gpt(model, prompt, max_len = 4096, temp = 0, max_attempts = 6):
                         "content": prompt,
                     }
                 ],
-                model = "gpt-4o",
+                model = model,
                 temperature = temp,
             )
             print(chat_completion)
