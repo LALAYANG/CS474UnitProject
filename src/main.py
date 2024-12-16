@@ -3,13 +3,13 @@ import json
 import signal
 import sys
 from datetime import datetime
-from inference import prompt_construction, model_prompting
+from inference import skolem_prompt_construction, model_prompting
 from post_processing import process_response
 from utils import read_jsonl, evaluate_z3_code
 from stitching import stitch_z3_code, llm_fix_z3
 
 def get_prompt(input_item):
-    prompt = prompt_construction(input_item)
+    prompt = skolem_prompt_construction(input_item)
     return prompt
 
 def prompt_model(model, prompt):
@@ -17,8 +17,8 @@ def prompt_model(model, prompt):
     return response
 
 def get_post_result(model, response):
-    instantiations, formal_proof, z3_code = process_response(model, response)
-    return instantiations, formal_proof, z3_code 
+    phi, phi_prime, skelomization, instantiations, final_formula, z3_code = process_response(model, response)
+    return phi, phi_prime, skelomization, instantiations, final_formula, z3_code 
 
 def iter_evaulate_fix_z3(item, model, code, attempts = 3):
     new_eval_result, new_code = None, None
@@ -79,7 +79,7 @@ signal.signal(signal.SIGALRM, timeout_handler)
 def main(input_file, output_file):
     jsonl_data = read_jsonl(input_file)
     results = []
-    model = "gpt-4o-mini"
+    model = "gpt-4o"
     for item in jsonl_data:
         signal.alarm(300) 
         try:
@@ -91,10 +91,11 @@ def main(input_file, output_file):
             print(f"*** Prompt:\n{prompt}")
             response = prompt_model(model, prompt)
             print(f"*** Response:\n{response}")
-            instantiations, formal_proof, z3_code  = get_post_result(model, response)
+            phi, phi_prime, skelomization, instantiations, final_formula, z3_code   = get_post_result(model, response)
             eval_result = iter_evaulate_fix_z3(item, model, z3_code)
             
-            item["instantiations"], item["formal_proof"], item["initial_z3_code"] = instantiations, formal_proof, z3_code
+            item["phi"], item["phi_prime"], item["skelomization"] = phi, phi_prime, skelomization
+            item["instantiations"], item["final_formula"], item["initial_z3_code"] = instantiations, final_formula, z3_code
             item["prompt"], item["response"], item["model"] = prompt, response, model
             item["final_z3_code"], item["final_eval_result"] = eval_result["final_code"], eval_result["final_eval_result"]
             item["stitched_times"] = eval_result["stitched_times"]
@@ -112,7 +113,7 @@ def main(input_file, output_file):
         except Exception as e:
             print(f"*** Exceptions with {item['problem_name']} with {e}")
         signal.alarm(0)
-        # exit(0)
+        exit(0)
 
 def is_item_in_jsonl(file_path, item):
     with open(file_path, 'r') as file:
@@ -123,9 +124,14 @@ def is_item_in_jsonl(file_path, item):
     return False
     
 if __name__ == "__main__":
-    args = sys.argv[1:]
-    input_file = args[0]
-    output_file = args[1]
-    # input_file = "/home/yang/CS474UnitProject/filtered.jsonl"
-    # output_file = "gpt_outputs.jsonl"
+    # args = sys.argv[1:]
+    # input_file = args[0]
+    # output_file = args[1]
+    input_file = "/home/yang/CS474UnitProject/MINI_F2F_test.jsonl"
+    output_file = "update_gpt_outputs.jsonl"
+    
+    if not os.path.exists(output_file):
+        with open(output_file, 'w') as file:
+            pass 
+        
     main(input_file, output_file)
