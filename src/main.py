@@ -74,6 +74,9 @@ def main(input_file, output_file):
     model = "gpt-4o-mini"
     for item in jsonl_data:
         try:
+            if is_item_in_jsonl(output_file, item):
+                print(f"{item['problem_name']} is already done!")
+                continue
             print(f"*** Working on item {item['problem_name']}...")
             prompt = get_prompt(item)
             print(f"*** Prompt:\n{prompt}")
@@ -97,6 +100,14 @@ def main(input_file, output_file):
         except Exception as e:
             print(f"*** Exceptions with {item['problem_name']} with {e}")
         # exit(0)
+
+def is_item_in_jsonl(file_path, item):
+    with open(file_path, 'r') as file:
+        for line in file:
+            json_data = json.loads(line)
+            if item["problem_name"] == json_data["problem_name"]:
+                return True
+    return False
     
 if __name__ == "__main__":
     input_file = "/home/yang/CS474UnitProject/filtered.jsonl"
