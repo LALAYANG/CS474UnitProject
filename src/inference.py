@@ -33,6 +33,26 @@ def prompt_gpt(model, prompt, max_len = 4096, temp = 0, max_attempts = 6):
         attempts += 1
     return response
 
+def skolem_prompt_construction(input_item):
+    # input_item: {'dataset:, 'problem_name':, 'informal_statement':, 'informal_proof':,}
+    prompt = textwrap.dedent(f"""
+    You are an expert of formal method and proof generation.
+    For any formula phi, we can prove phi is valid by proving that neg phi is unsatisfiable.
+    
+    Given a problem with informal_statement and informal_proof.
+    You should do the following tasks step by step:
+    1. Translate informal_statement into a formula phi.
+    2. Negate phi to get (neg phi).
+    3. Skolemize the negated formula (neg phi) into prenex form, namely an equisatisfiable formula which has only universal quantification.
+    4. Extract instantions from informal_proof, and surround it with ```instantiations and ```.
+    5. Using quantifier instantiations, prove (neg phi) is unsatisfiable, thereby phi is valid.
+    6. Generate a formal proof for the above process and surround it with ```formal_proof and ```.
+    7. Write the formal proof using Isabelle, and surround it in ```isabelle and ```.
+    
+    """    
+    )
+     
+
 def prompt_construction(input_item):
     # input_item: {'dataset:, 'problem_name':, 'informal_statement':, 'informal_proof':,}
     prompt = textwrap.dedent(f"""
