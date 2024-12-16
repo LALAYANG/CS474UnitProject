@@ -86,6 +86,7 @@ def main(input_file, output_file):
             item["prompt"], item["response"], item["model"] = prompt, response, model
             item["final_z3_code"], item["final_eval_result"] = eval_result["final_code"], eval_result["final_eval_result"]
             item["stitched_times"] = eval_result["stitched_times"]
+            item["initial_eval_result"] = eval_result["initial_eval_result"]
             item["offline_stitch_applied"] = eval_result["offline_stitch_applied"]
             
             results.append(item)
