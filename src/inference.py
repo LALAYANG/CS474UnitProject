@@ -72,7 +72,7 @@ def skolem_prompt_construction(input_item):
     \[ x = 3 \]
     ```
     
-    ```formula
+    ```final_formula
     \[ int(c) and (c > 2 and c^2 <= 4) \]
     \[ int(3) and (3 > 2 and 3^2 <= 4) \]
     ```
