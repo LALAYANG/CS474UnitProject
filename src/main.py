@@ -1,6 +1,7 @@
 import os
 import json
 import signal
+import sys
 from datetime import datetime
 from inference import prompt_construction, model_prompting
 from post_processing import process_response
@@ -122,6 +123,9 @@ def is_item_in_jsonl(file_path, item):
     return False
     
 if __name__ == "__main__":
-    input_file = "/home/yang/CS474UnitProject/filtered.jsonl"
-    output_file = "gpt_outputs.jsonl"
+    args = sys.argv[1:]
+    input_file = args[0]
+    output_file = args[1]
+    # input_file = "/home/yang/CS474UnitProject/filtered.jsonl"
+    # output_file = "gpt_outputs.jsonl"
     main(input_file, output_file)
