@@ -73,28 +73,31 @@ def main(input_file, output_file):
     results = []
     model = "gpt-4o-mini"
     for item in jsonl_data:
-        print(f"*** Working on item {item['problem_name']}...")
-        prompt = get_prompt(item)
-        print(f"*** Prompt:\n{prompt}")
-        response = prompt_model(model, prompt)
-        print(f"*** Response:\n{response}")
-        instantiations, formal_proof, z3_code  = get_post_result(model, response)
-        eval_result = iter_evaulate_fix_z3(item, model, z3_code)
-        
-        item["instantiations"], item["formal_proof"], item["initial_z3_code"] = instantiations, formal_proof, z3_code
-        item["prompt"], item["response"], item["model"] = prompt, response, model
-        item["final_z3_code"], item["final_eval_result"] = eval_result["final_code"], eval_result["final_eval_result"]
-        item["stitched_times"] = eval_result["stitched_times"]
-        item["offline_stitch_applied"] = eval_result["offline_stitch_applied"]
-        
-        results.append(item)
-        with open(output_file, 'a') as file:
-            json.dump(item, file)
-            file.write('\n')
-        print(f"*** Done with {item['problem_name']}")
-        exit(0)
+        try:
+            print(f"*** Working on item {item['problem_name']}...")
+            prompt = get_prompt(item)
+            print(f"*** Prompt:\n{prompt}")
+            response = prompt_model(model, prompt)
+            print(f"*** Response:\n{response}")
+            instantiations, formal_proof, z3_code  = get_post_result(model, response)
+            eval_result = iter_evaulate_fix_z3(item, model, z3_code)
+            
+            item["instantiations"], item["formal_proof"], item["initial_z3_code"] = instantiations, formal_proof, z3_code
+            item["prompt"], item["response"], item["model"] = prompt, response, model
+            item["final_z3_code"], item["final_eval_result"] = eval_result["final_code"], eval_result["final_eval_result"]
+            item["stitched_times"] = eval_result["stitched_times"]
+            item["offline_stitch_applied"] = eval_result["offline_stitch_applied"]
+            
+            results.append(item)
+            with open(output_file, 'a') as file:
+                json.dump(item, file)
+                file.write('\n')
+            print(f"*** Done with {item['problem_name']}")
+        except Exception as e:
+            print(f"*** Exceptions with {item['problem_name']} with {e}")
+        # exit(0)
     
 if __name__ == "__main__":
     input_file = "/home/yang/CS474UnitProject/filtered.jsonl"
-    output_file = "outputs.jsonl"
+    output_file = "gpt_outputs.jsonl"
     main(input_file, output_file)

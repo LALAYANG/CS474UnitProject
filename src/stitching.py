@@ -1,8 +1,13 @@
 import ast
 import os
+import re
 import textwrap
 from inference import model_prompting
 
+
+def parse_name_from_error(error_message):
+    matches = re.findall(r"name '(\w+)' is not defined", error_messages)
+    return matches
 
 def stitch_z3_code(code, error_msg):
     tree = ast.parse(code)
