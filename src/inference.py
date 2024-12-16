@@ -37,20 +37,76 @@ def skolem_prompt_construction(input_item):
     # input_item: {'dataset:, 'problem_name':, 'informal_statement':, 'informal_proof':,}
     prompt = textwrap.dedent(f"""
     You are an expert of formal method and proof generation.
-    For any formula phi, we can prove phi is valid by proving that neg phi is unsatisfiable.
+    For any formula $phi$, we can prove $phi$ is valid by proving that $neg phi$ is unsatisfiable.
     
     Given a problem with informal_statement and informal_proof.
     You should do the following tasks step by step:
-    1. Translate informal_statement into a formula phi.
-    2. Negate phi to get (neg phi).
-    3. Skolemize the negated formula (neg phi) into prenex form, namely an equisatisfiable formula which has only universal quantification.
-    4. Extract instantions from informal_proof, and surround it with ```instantiations and ```.
-    5. Using quantifier instantiations, prove (neg phi) is unsatisfiable, thereby phi is valid.
-    6. Generate a formal proof for the above process and surround it with ```formal_proof and ```.
-    7. Write the formal proof using Isabelle, and surround it in ```isabelle and ```.
+    1. Translate informal_statement into a formula $phi$, surround it with ```phi and ```.
+    2. Negate $phi$ to get $phi_prime = neg phi$ in Math. During this process, all the existing quantifiers should also get negated, surround it with ```phi_prime and ```.
+    3. Skolemize the negated formula $phi_prime$ into prenex normal form, 
+    namely an equisatisfiable formula which has only universal quantification. Surround it with ```skelomization and ```.
+    Specifically, you need to replace all $\exists y$ with a concrete and new function computing $y$ from all the arguments $y$ depends on (i.e., the universally quantified arguments that appear before $y$). 
+    If $y$ does not depend on any argument, you can replace it with a concrete and new constant variable.
+    4. Extract instantions from informal_proof as well as the ground terms in $phi_prime$ for each quantified sentence, and surround it with ```instantiations and ```.
+    5. For each quantified sentence in $phi_prime$, try to replace it with all the possible extracted instantion. You should get a list of quantifier-free formulas. Surround them with ```final_formula and ```.
+    6. After replacement, write all these quantifier-free formulas using Z3 and try to solve them using an SMT solver. If the SMT solver returns UNSAT, it means that $phi_prime$ is unsatisfiable, thereby $phi$ is valid. Surround the code with ```python and ```
     
-    """    
-    )
+    For example, given the following informal_statement and informal_proof:
+    informal_statement: "For any two real numbers a and b, show that $4b(a+1)\\leq 4b^2+(a+1)^2$.", 
+    informal_proof: "The result comes from $x^2+y^2 \\geq 2xy$ for all reals $x,y$, applied to $x=2b$ and $y=a+1$."
+    
+    Your response should be:
+    ```phi
+    \[ phi = \\forall x \, (int(x) \to (x > 2 \to x^2 > 4)) \]
+    ```
+    
+    ```phi_prime
+    \[ phi_prime = \exists x \, (int(x) \land (x > 2 \land x^2 \leq 4)) \]
+    ```
+    
+    ```skelomization
+    \[ skemolization(phi') = int(c) \land (c > 2 \land c^2 \leq 4) \]
+    ```
+    
+    ```instantiations
+    \[ x = 3 \]
+    ```
+    
+    ```formula
+    \[ int(c) and (c > 2 and c^2 <= 4) \]
+    \[ int(3) and (3 > 2 and 3^2 <= 4) \]
+    ```
+    
+    ```python
+    from z3 import *
+
+    # Create a solver instance
+    solver = Solver()
+
+    # Define the variable as integer
+    c = Int('c')
+
+    # Add the constraints to the solver
+    solver.add(c > 2)
+    solver.add(c**2 <= 4)
+
+    # Check satisfiability
+    if solver.check() == unsat:
+        print("UNSAT, the original statement phi is valid.")
+    else:
+        print("SAT, the original statement phi might not be valid.")
+    ```
+    
+    Problem:
+    informal_statement:
+    {input_item["informal_statement"]}
+    
+    informal_proof
+    {input_item["informal_proof"]}
+    
+    Your response:
+    """)
+    return prompt
      
 
 def prompt_construction(input_item):
