@@ -51,67 +51,9 @@ def skolem_prompt_construction(input_item):
     If $y$ does not depend on any argument, you can replace it with a concrete and new constant variable.
     4. Extract instantions from informal_proof as well as the ground terms in $phi_prime$ for each quantified sentence, and surround it with ```instantiations and ```.
     5. For each quantified sentence in $phi_prime$, try to replace it with all the possible extracted instantion. You should get a list of quantifier-free formulas. Surround them with ```final_formula and ```.
-    6. After replacement, write all these quantifier-free formulas using Z3 and try to solve them using an SMT solver. If the SMT solver returns UNSAT, it means that $phi_prime$ is unsatisfiable, thereby $phi$ is valid. Surround the code with ```python and ```
-    
-    For example, given the following informal_statement and informal_proof:
-    informal_statement: For all integers x, if x > 2, then x^2 > 4., 
-    informal_proof: Consider any integer x that is greater than 2. By multiplying x by itself, since x>2, the square of x (i.e., x^2) will always be greater than the square of 2, which is 4. Therefore, x^2 > 4 holds for all x>2.
-     
-    Your response should be:
-    The informal statement "For all integers x, if x > 2, then x^2 > 4" can be formally written as:
-    ```phi
-    \[ phi = \\forall x \, (int(x) \\to (x > 2 \to x^2 > 4)) \]
-    ```
-    
-    Negating $phi$, we perform the following transformations:
-    \[
-    \\neg \\forall x \, (int(x) \\to (x > 2 \\to x^2 > 4))
-    \]
-    This negation becomes:
-    ```phi_prime
-    \[ phi_prime = \exists x \, (int(x) \land (x > 2 \land x^2 \leq 4)) \]
-    ```
-    
-    To skolemize $phi_prime$, $c$ is a new constant variable replacing $\exists x$:
-    ```skelomization
-    \[ skemolization(phi_prime) = int(c) \land (c > 2 \land c^2 \leq 4) \]
-    ```
-    
-    Extract instantiations:
-    ```instantiations
-    \[ x = 3 \]
-    ```
-    
-    Replace each quantified sentence with possible instantiation. 
-    Given our skolemized formula:
-    \[ int(c) and (c > 2 and c^2 <= 4) \]
-    
-    using the instantiation $x = 3$, the formula becomes:
-    ```final_formula
-    \[ int(3) and (3 > 2 and 3^2 <= 4) \]
-    ```
-    
-    Z3 SMT solver:
-    ```python
-    from z3 import *
-
-    # Define the formula and add the instantiation x = 3
-    instantiation = And(
-        3 > 2,         # x > 2
-        3**2 <= 4      # x^2 <= 4
-    )
-
-    # Create a solver
-    solver = Solver()
-
-    # Add both the formula and instantiation
-    solver.add(instantiation)
-
-    # Check satisfiability
-    if solver.check() == unsat:
-        print("UNSAT, the original statement phi is valid.")
-    else:
-        print("SAT, the original statement phi might not be valid.")
+    6. After replacement, write all these quantifier-free formulas using Z3 and try to solve them using an SMT solver. 
+    If the SMT solver returns UNSAT, it means that $phi_prime$ is unsatisfiable, thereby $phi$ is valid. You should print "UNSAT, the original statement phi is valid.".
+    Otherwise, you should print "SAT, the original statement phi might not be valid.".
     ```
     
     Problem:
