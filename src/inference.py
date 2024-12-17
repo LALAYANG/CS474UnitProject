@@ -93,9 +93,6 @@ def skolem_prompt_construction(input_item):
     ```python
     from z3 import *
 
-    # Define variables
-    c = Int('c')  # Define c as an integer
-
     # Define the formula and add the instantiation x = 3
     instantiation = And(
         3 > 2,         # x > 2
