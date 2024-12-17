@@ -141,6 +141,7 @@ if __name__ == "__main__":
     # input_file = "/home/yang/CS474UnitProject/MINI_F2F_test.jsonl"
     # output_file = "few_shot_gpt4o_outputs.jsonl"
     
+    print(f"if sampling: {sampling}")
     if not os.path.exists(output_file):
         with open(output_file, 'w') as file:
             pass 
