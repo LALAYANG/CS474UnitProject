@@ -137,7 +137,7 @@ if __name__ == "__main__":
     args = sys.argv[1:]
     input_file = args[0]
     output_file = args[1]
-    sampling = args[2]
+    sampling = True if args[2] == "True" else False
     # input_file = "/home/yang/CS474UnitProject/MINI_F2F_test.jsonl"
     # output_file = "few_shot_gpt4o_outputs.jsonl"
     
