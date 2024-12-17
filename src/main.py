@@ -52,7 +52,7 @@ def iter_evaulate_fix_z3(item, model, code, sampling, attempts = 3):
             offline_stitch_applied = True
         
         if "Traceback" in new_eval_result:
-            new_code = llm_fix_z3(new_code, new_eval_result, model)
+            new_code = llm_fix_z3(new_code, new_eval_result, model, sampling)
             new_eval_result = evaluate_z3_code(tag, new_code)
             print(f"*** LLM stitched code:\n{new_code}\n*** LLM stitched result: {new_eval_result}")
         else:

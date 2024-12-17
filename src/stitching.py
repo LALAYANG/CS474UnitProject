@@ -35,7 +35,7 @@ def parse_python_code(response):
     code = response.split("```python")[-1].split("```")[0]
     return code
     
-def llm_fix_z3(code, error_msg, model):
+def llm_fix_z3(code, error_msg, model, sampling):
     print(code, error_msg)
     prompt = textwrap.dedent(f"""
     You are an expert of python coding.
@@ -49,6 +49,6 @@ def llm_fix_z3(code, error_msg, model):
     
     Your response:
     """)
-    response = model_prompting(model, prompt)
+    response = model_prompting(model, prompt, sampling)
     code = parse_python_code(response)
     return code
