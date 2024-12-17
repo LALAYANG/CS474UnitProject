@@ -91,15 +91,26 @@ def skolem_prompt_construction(input_item):
     ```python
     from z3 import *
 
-    # Create a solver instance
+    # Define variables
+    c = Int('c')  # Define c as an integer
+
+    # Define the formula
+    formula = And(
+        c > 2,         # c > 2
+        c**2 <= 4      # c^2 <= 4
+    )
+
+    # Add the instantiation x = 3
+    instantiation = And(
+        3 > 2,         # x > 2
+        3**2 <= 4      # x^2 <= 4
+    )
+
+    # Create a solver
     solver = Solver()
 
-    # Define the variable as integer
-    c = Int('c')
-
-    # Add the constraints to the solver
-    solver.add(c > 2)
-    solver.add(c**2 <= 4)
+    # Add both the formula and instantiation
+    solver.add(formula, instantiation)
 
     # Check satisfiability
     if solver.check() == unsat:
