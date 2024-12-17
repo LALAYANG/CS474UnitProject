@@ -3,11 +3,11 @@ import os
 import textwrap
 from openai import OpenAI
 
-def model_prompting(model, prompt):
+def model_prompting(model, prompt, sampling):
     if "gpt" in model:
-        return prompt_gpt(model, prompt)
+        return prompt_gpt(model, prompt, sampling)
 
-def prompt_gpt(model, prompt, max_len = 4096, temp = 0, max_attempts = 6):
+def prompt_gpt(model, prompt, sampling, max_len = 4096, temp = 0, max_attempts = 6):
     attempts = 1
     response = None
     while attempts < max_attempts and not response:
@@ -24,14 +24,16 @@ def prompt_gpt(model, prompt, max_len = 4096, temp = 0, max_attempts = 6):
                     }
                 ],
                 model = model,
-                temperature = temp,
+                temperature = 1 if sampling else temp,
             )
+            print(f"temperature: {1 if sampling else temp}")
             print(chat_completion)
             response = chat_completion.choices[0].message.content
         except Exception as e:
             print(f"Exception at attemp {attempts}: {e}")
         attempts += 1
     return response
+
 
 def skolem_prompt_construction(input_item):
     # input_item: {'dataset:, 'problem_name':, 'informal_statement':, 'informal_proof':,}
