@@ -81,9 +81,11 @@ def skolem_prompt_construction(input_item):
     ```
     
     Replace each quantified sentence with possible instantiation. 
-    Given our skolemized formula, using the instantiation $x = 3$, the formula becomes:
-    ```final_formula
+    Given our skolemized formula:
     \[ int(c) and (c > 2 and c^2 <= 4) \]
+    
+    using the instantiation $x = 3$, the formula becomes:
+    ```final_formula
     \[ int(3) and (3 > 2 and 3^2 <= 4) \]
     ```
     
@@ -94,13 +96,7 @@ def skolem_prompt_construction(input_item):
     # Define variables
     c = Int('c')  # Define c as an integer
 
-    # Define the formula
-    formula = And(
-        c > 2,         # c > 2
-        c**2 <= 4      # c^2 <= 4
-    )
-
-    # Add the instantiation x = 3
+    # Define the formula and add the instantiation x = 3
     instantiation = And(
         3 > 2,         # x > 2
         3**2 <= 4      # x^2 <= 4
@@ -110,7 +106,7 @@ def skolem_prompt_construction(input_item):
     solver = Solver()
 
     # Add both the formula and instantiation
-    solver.add(formula, instantiation)
+    solver.add(instantiation)
 
     # Check satisfiability
     if solver.check() == unsat:
