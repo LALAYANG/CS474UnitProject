@@ -78,7 +78,7 @@ def skolem_prompt_construction(input_item):
     
     To skolemize $phi_prime$, $c$ is a new constant variable replacing $\exists x$:
     ```skelomization
-    \[ \\text{skolemization}(\phi\_prime) = \\forall A \, (A < 0 \lor A > 9 \lor (2 - 0 + A - 7) \\not\equiv 0 \pmod{11}) \]
+    \[ skolemization(\phi\_prime) = \\forall A \, (A < 0 \lor A > 9 \lor (2 - 0 + A - 7) \\not\equiv 0 \pmod{11}) \]
     ```
     
     Extract instantiations:
